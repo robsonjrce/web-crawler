@@ -17,4 +17,4 @@ deps:
 .PHONY: test
 test:
 	GOPATH=$(shell pwd)
-	cd src/robsonjr.com.br/ && GOPATH=$(GOPATH) go test -v robsonjr.com.br/utils/strings
+	cd src/robsonjr.com.br/ && GOPATH=$(GOPATH) go test -v robsonjr.com.br/utils/anchors
