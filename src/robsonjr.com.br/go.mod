@@ -1,4 +1,4 @@
-module br.com.robsonjr
+module robsonjr.com.br
 
 go 1.17
 
