@@ -65,6 +65,13 @@ func TestExtractHrefValidAnchorTag(t *testing.T) {
 		}
 	})
 
+	t.Run("valid anchor single quote", func(t *testing.T) {
+		hrefText := getHrefAnchorTag(`<a href='local2.html'>`)
+		if hrefText != "local2.html" {
+			t.Errorf("must return `local2.html`")
+		}
+	})
+
 	t.Run("valid href with nested anchors", func(t *testing.T) {
 		hrefText := getHrefAnchorTag(`<a href="local.html" <a href="notlocal.html">`)
 		if hrefText != "local.html" {

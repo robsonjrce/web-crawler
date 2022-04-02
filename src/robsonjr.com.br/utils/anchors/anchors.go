@@ -23,7 +23,7 @@ func getValidAnchorFromText(tagText string) string {
 
 // getHrefAnchorTag: will extract href attribute from valid anchor <a> tag
 func getHrefAnchorTag(anchorText string) string {
-	regexHrefAttr := regexp.MustCompile(`<a.*?href="([^"]*?)".*`)
+	regexHrefAttr := regexp.MustCompile(`<a.*?href=['"]([^"]*?)['"].*`)
 	textHref := regexHrefAttr.FindSubmatch([]byte(anchorText))
 	if textHref == nil || len(textHref) != 2 {
 		return ""
