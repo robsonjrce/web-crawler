@@ -7,12 +7,12 @@ all:
 .PHONY: build
 build: deps
 	GOPATH=$(shell pwd)
-	cd src/br.com.robsonjr/ && go build -o ../../bin/web-crawler main.go
+	cd src/robsonjr.com.br/ && go build -o ../../bin/web-crawler main.go
 
 .PHONY: deps
 deps:
 	GOPATH=$(shell pwd)
-	cd src/br.com.robsonjr/ && go get -d ./...
+	cd src/robsonjr.com.br/ && go get -d ./...
 
 .PHONY: test
 test:
