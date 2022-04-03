@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"robsonjr.com.br/utils/anchors"
+	"robsonjr.com.br/utils/signals"
 	"robsonjr.com.br/utils/validation"
 )
 
@@ -53,7 +54,11 @@ var walkCmd = &cobra.Command{
 
 		// Subscribe to both channels
 		for {
-			if len(pendingUrls) == 0 && currJobs == 0 {
+			if !signals.ShouldContinue() {
+				if currJobs == 0 {
+					break
+				}
+			} else if len(pendingUrls) == 0 && currJobs == 0 {
 				// we have ended depth crawling from the initial root url
 				break
 			} else {

@@ -39,4 +39,5 @@ $ ./bin/web-crawler walk --url url_to_crawl --dest destination_path_save_data
 - <del>First we have defined the cli interface</del>
 - <del>As second step we will work on the finding suitable data</del>
   - <del>Means that we will look for valid `<a>` tags and look for the `href` attribute</del>
-- Add implementation to walk and download pages 
+- <del>Add implementation to walk and download pages</del>
+- Add data persistence for pages crawled
