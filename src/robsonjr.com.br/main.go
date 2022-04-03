@@ -1,6 +1,6 @@
 package main
 
-import "br.com.robsonjr/cmd"
+import "robsonjr.com.br/cmd"
 
 func main() {
 	cmd.Execute()
