@@ -120,6 +120,7 @@ func walk(chNewUrl chan string, chNotifyEnd chan string, url string, outputPath 
 	}()
 
 	if !isValidPageType(url) {
+		fmt.Printf("skipping: %v\n", url)
 		return
 	}
 
@@ -154,8 +155,15 @@ func isValidPageType(url string) bool {
 	if err != nil {
 		panic(err)
 	}
-	contentType := res.Header.Get("Content-Type")
-	contentType = contentType[:strings.Index(contentType, ";")]
+	headerContentType := res.Header.Get("Content-Type")
+	idxSeparator := strings.Index(headerContentType, ";")
+
+	var contentType string
+	if idxSeparator < 0 {
+		contentType = headerContentType
+	} else {
+		contentType = headerContentType[:idxSeparator]
+	}
 
 	for _, allowedType := range allowedTypes {
 		if contentType == allowedType {
