@@ -9,6 +9,7 @@ import (
 	"robsonjr.com.br/utils/anchors"
 	"robsonjr.com.br/utils/signals"
 	"robsonjr.com.br/utils/validation"
+	"strings"
 	"time"
 )
 
@@ -96,12 +97,7 @@ var walkCmd = &cobra.Command{
 			// listening for events
 			select {
 			case url := <-chNewUrl:
-				// enqueuing new url for work if it is not
-				if validation.IsChildrenUrl(walkCmdArg.Url, url) {
-					if _, ok := workingUrls[url]; !ok {
-						pendingUrls = append(pendingUrls, url)
-					}
-				}
+				saveNewUrl(&pendingUrls, &workingUrls, url)
 			case url := <-chNotifyEnd:
 				// updating our structure with workload end
 				if _, ok := workingUrls[url]; !ok {
@@ -142,6 +138,23 @@ func walk(chNewUrl chan string, chNotifyEnd chan string, url string, outputPath 
 	anchors := anchors.GetWalkValidPages(string(doc))
 	for _, anchor := range anchors {
 		chNewUrl <- anchor
+	}
+}
+
+func saveNewUrl(pendingUrls *[]string, workingUrls *map[string]bool, url string) {
+	if strings.HasPrefix(url, "/") {
+		baseUrl, err := validation.GetBaseUrl(walkCmdArg.Url)
+		if err != nil {
+
+		}
+		url = fmt.Sprintf("%v/%v", baseUrl, url[1:])
+	}
+
+	// enqueuing new url for work if it is not
+	if validation.IsChildrenUrl(walkCmdArg.Url, url) {
+		if _, ok := (*workingUrls)[url]; !ok {
+			*pendingUrls = append(*pendingUrls, url)
+		}
 	}
 }
 

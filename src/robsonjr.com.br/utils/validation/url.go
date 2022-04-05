@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"errors"
 	"net/url"
 	"strings"
 )
@@ -59,4 +60,13 @@ func IsChildrenUrl(originUrl string, checkUrl string) bool {
 	}
 
 	return true
+}
+
+func GetBaseUrl(rawUrl string) (baseUrl string, err error) {
+	parsedUrl, ok := isValidUrl(rawUrl);
+	if !ok {
+		return "", errors.New("couldn't parse url")
+	}
+
+	return parsedUrl.Scheme + "://" + parsedUrl.Host, nil
 }
