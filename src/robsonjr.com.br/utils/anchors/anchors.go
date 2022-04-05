@@ -6,7 +6,7 @@ import (
 
 // getAnchorsFromText: will search on the text for anchor <a> tags
 func getAnchorsFromText(documentText string) []string {
-	regexAnchors := regexp.MustCompile(`<a(?:[^>].*?)>`)
+	regexAnchors := regexp.MustCompile(`<a(?:[^>](?:.|\n)*?)>`)
 	validAnchors := regexAnchors.FindAllString(documentText, -1)
 	return validAnchors
 }
@@ -15,7 +15,7 @@ func getAnchorsFromText(documentText string) []string {
 func getValidAnchorFromText(tagText string) string {
 	// we are matching the smallest possible valid anchor, that means
 	// nested `<a` are disconsidered
-	regexValidAnchor := regexp.MustCompile(`<a.*?[<>]`)
+	regexValidAnchor := regexp.MustCompile(`<a(?:.|\n)*?[<>]`)
 	validAnchor := regexValidAnchor.Find([]byte(tagText))
 	validAnchorWithoutLastChar := validAnchor[:len(validAnchor)-1]
 	return string(validAnchorWithoutLastChar)
@@ -23,7 +23,7 @@ func getValidAnchorFromText(tagText string) string {
 
 // getHrefAnchorTag: will extract href attribute from valid anchor <a> tag
 func getHrefAnchorTag(anchorText string) string {
-	regexHrefAttr := regexp.MustCompile(`<a.*?href=['"]([^"]*?)['"].*`)
+	regexHrefAttr := regexp.MustCompile(`<a(?:.|\n)*?href=['"]([^"]*?)['"](?:.|\n)*`)
 	textHref := regexHrefAttr.FindSubmatch([]byte(anchorText))
 	if textHref == nil || len(textHref) != 2 {
 		return ""

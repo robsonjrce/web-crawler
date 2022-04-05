@@ -10,10 +10,21 @@ func TestEmptyDocumentMustReturnEmptyResponse(t *testing.T) {
 }
 
 func TestSingleAnchor(t *testing.T) {
-	validEntriesToWalk := getAnchorsFromText(`<a href="local.html">`)
-	if len(validEntriesToWalk) != 1 {
-		t.Errorf("must return one anchor element")
-	}
+	t.Run("inline anchor", func(t *testing.T) {
+		validEntriesToWalk := getAnchorsFromText(`<a href="local.html">`)
+		if len(validEntriesToWalk) != 1 {
+			t.Errorf("must return one anchor element")
+		}
+	})
+
+	t.Run("multiline anchor", func(t *testing.T) {
+		validEntriesToWalk := getAnchorsFromText(`<a 
+                                                                href="local.html"
+                                                              >`)
+		if len(validEntriesToWalk) != 1 {
+			t.Errorf("must return one anchor element")
+		}
+	})
 }
 
 func TestNestedAnchor(t *testing.T) {
