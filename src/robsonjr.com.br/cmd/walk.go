@@ -9,6 +9,7 @@ import (
 	"robsonjr.com.br/utils/anchors"
 	"robsonjr.com.br/utils/signals"
 	"robsonjr.com.br/utils/validation"
+	"time"
 )
 
 type walkCmdArgDef struct {
@@ -47,6 +48,22 @@ var walkCmd = &cobra.Command{
 		// notify channels
 		chNewUrl := make(chan string)
 		chNotifyEnd := make(chan string)
+		chTick := make(chan bool)
+
+		// avoid starvation from pendingUrls processing
+		go func() {
+			ticker := time.NewTicker(500 * time.Millisecond)
+
+			for {
+				time.Sleep(1600 * time.Millisecond)
+				chTick <- true
+
+				if !signals.ShouldContinue() {
+					break
+				}
+			}
+			ticker.Stop()
+		}()
 
 		// first job, we should run with the root url
 		pendingUrls = append(pendingUrls, url)
@@ -98,6 +115,8 @@ var walkCmd = &cobra.Command{
 				}
 
 				currJobs--
+			case <-chTick:
+					continue
 			}
 		}
 
