@@ -108,7 +108,15 @@ var walkCmd = &cobra.Command{
 func walk(chNewUrl chan string, chNotifyEnd chan string, url string, outputPath string) {
 	fmt.Printf("downloading: %v\n", url)
 
-	resp, err := http.Get(url)
+	defer func() {
+		chNotifyEnd <- url
+	}()
+
+	httpClient := http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	resp, err := httpClient.Get(url)
 	if err != nil {
 		fmt.Println("ERROR: Failed to crawl:", url)
 		return
@@ -122,8 +130,6 @@ func walk(chNewUrl chan string, chNotifyEnd chan string, url string, outputPath 
 	for _, anchor := range anchors {
 		chNewUrl <- anchor
 	}
-
-	chNotifyEnd <- url
 }
 
 func init() {
