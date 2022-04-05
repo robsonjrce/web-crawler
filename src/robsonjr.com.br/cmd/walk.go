@@ -80,21 +80,15 @@ var walkCmd = &cobra.Command{
 			} else {
 				// starting new job in case it is possible to parallelize it
 				if len(pendingUrls) > 0 && currJobs < totalJobs {
-					// we are getting the first element from the pending pool, and adding it to working
-					popUrl := pendingUrls[0]
+					// finding the next unprocessed url
+					nextUrl := getNextUrlToWalk(&pendingUrls, &workingUrls)
 
-					// removing the url we just got from the pending work
-					pendingUrls = pendingUrls[1:]
-
-					// we should skip this job if it is already being processed
-					if _, ok := workingUrls[popUrl]; !ok {
-						workingUrls[popUrl] = false
-
+					if nextUrl != "" {
 						// updating the number of jobs
 						currJobs++
 
 						// properly starting the job
-						go walk(chNewUrl, chNotifyEnd, popUrl, outputPath)
+						go walk(chNewUrl, chNotifyEnd, nextUrl, outputPath)
 					}
 				}
 			}
@@ -149,6 +143,26 @@ func walk(chNewUrl chan string, chNotifyEnd chan string, url string, outputPath 
 	for _, anchor := range anchors {
 		chNewUrl <- anchor
 	}
+}
+
+func getNextUrlToWalk(pendingUrls *[]string, workingUrls *map[string]bool) string {
+	nextUrl := ""
+
+	for len(*pendingUrls) > 0 && nextUrl == "" {
+		// we are getting the first element from the pending pool, and adding it to working
+		tryUrl := (*pendingUrls)[0]
+
+		// removing the url we just got from the pending work
+		*pendingUrls = (*pendingUrls)[1:]
+
+		// we should skip this job if it is already being processed
+		if _, ok := (*workingUrls)[tryUrl]; !ok {
+			(*workingUrls)[tryUrl] = false
+			nextUrl = tryUrl
+		}
+	}
+
+	return nextUrl
 }
 
 func init() {
