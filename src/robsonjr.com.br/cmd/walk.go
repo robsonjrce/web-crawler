@@ -11,31 +11,30 @@ import (
 	"robsonjr.com.br/utils/validation"
 )
 
+type walkCmdArgDef struct {
+	Url string
+	Dest string
+}
+
+var walkCmdArg = walkCmdArgDef{}
+
 var walkCmd = &cobra.Command{
 	Use:   "walk",
 	Short: "Walk through the root url",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		url, err := cmd.Flags().GetString("url")
-		if err != nil {
-			return err
-		}
-		if url == "" {
+		if walkCmdArg.Url == "" {
 			return errors.New("url can't be null")
 		}
 
-		dest, err := cmd.Flags().GetString("dest")
-		if err != nil {
-			return err
-		}
-		if dest == "" {
+ 		if walkCmdArg.Dest == "" {
 			return errors.New("url can't be null")
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		url, _ := cmd.Flags().GetString("url")
-		outputPath, _ := cmd.Flags().GetString("dest")
+		url := walkCmdArg.Url
+		outputPath := walkCmdArg.Dest
 
 		// total concurrent jobs
 		totalJobs := 2
@@ -87,8 +86,10 @@ var walkCmd = &cobra.Command{
 			select {
 			case url := <-chNewUrl:
 				// enqueuing new url for work if it is not
-				if _, ok := workingUrls[url]; !ok {
-					pendingUrls = append(pendingUrls, url)
+				if validation.IsChildrenUrl(walkCmdArg.Url, url) {
+					if _, ok := workingUrls[url]; !ok {
+						pendingUrls = append(pendingUrls, url)
+					}
 				}
 			case url := <-chNotifyEnd:
 				// updating our structure with workload end
@@ -119,17 +120,15 @@ func walk(chNewUrl chan string, chNotifyEnd chan string, url string, outputPath 
 
 	anchors := anchors.GetWalkValidPages(string(doc))
 	for _, anchor := range anchors {
-		if validation.IsChildrenUrl(url, anchor) {
-			chNewUrl <- anchor
-		}
+		chNewUrl <- anchor
 	}
 
 	chNotifyEnd <- url
 }
 
 func init() {
-	walkCmd.Flags().String("url", "", "the url to be crawled")
+	walkCmd.Flags().StringVar(&walkCmdArg.Url,"url", "", "the url to be crawled")
 	walkCmd.MarkFlagRequired("url")
-	walkCmd.Flags().String("dest", "", "the destination path to store the data")
+	walkCmd.Flags().StringVar(&walkCmdArg.Dest, "dest", "", "the destination path to store the data")
 	walkCmd.MarkFlagRequired("dest")
 }
