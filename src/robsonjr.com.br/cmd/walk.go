@@ -115,11 +115,15 @@ var walkCmd = &cobra.Command{
 }
 
 func walk(chNewUrl chan string, chNotifyEnd chan string, url string, outputPath string) {
-	fmt.Printf("downloading: %v\n", url)
-
 	defer func() {
 		chNotifyEnd <- url
 	}()
+
+	if !isValidPageType(url) {
+		return
+	}
+
+	fmt.Printf("downloading: %v\n", url)
 
 	httpClient := http.Client{
 		Timeout: 5 * time.Second,
@@ -139,6 +143,27 @@ func walk(chNewUrl chan string, chNotifyEnd chan string, url string, outputPath 
 	for _, anchor := range anchors {
 		chNewUrl <- anchor
 	}
+}
+
+func isValidPageType(url string) bool {
+	allowedTypes := []string{
+		"text/html", "text/plain",
+	}
+
+	res, err := http.Head(url)
+	if err != nil {
+		panic(err)
+	}
+	contentType := res.Header.Get("Content-Type")
+	contentType = contentType[:strings.Index(contentType, ";")]
+
+	for _, allowedType := range allowedTypes {
+		if contentType == allowedType {
+			return true
+		}
+	}
+
+	return false
 }
 
 func saveNewUrl(pendingUrls *[]string, workingUrls *map[string]bool, url string) {
